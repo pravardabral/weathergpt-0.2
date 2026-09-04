@@ -41,6 +41,16 @@ async def get_fast_response(
     {telemetry_data}
     
     User Query: {query}
+    If the user asks a simple question about current conditions (e.g., "What is the weather?", "Is it raining?"), respond EXCLUSIVELY with this JSON format wrapped in a ```json block:
+    {
+    "type": "weather_card",
+    "location": "City Name",
+    "temp": 28,
+    "condition": "Brief description",
+    "uv": 6,
+    "aqi": 45
+    }
+    Do not add conversational text outside the JSON block.
     """
     
     # Send as standard contents to bypass system_instruction restrictions
