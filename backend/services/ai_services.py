@@ -2,7 +2,7 @@ import httpx
 from google import genai
 from google.genai import types
 from core.config import GEMINI_API_KEY
-from core.weather import get_aggregated_weather
+from services.weather_service import get_aggregated_weather
 
 # Initialize client using the key from config
 client = genai.Client(api_key=GEMINI_API_KEY)
