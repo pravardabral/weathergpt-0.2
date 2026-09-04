@@ -1,9 +1,10 @@
 from pydantic import BaseModel
+from typing import Optional
 
-class ChatRequest(BaseModel):
+class ChatPayload(BaseModel):
     query: str
-    latitude: float
-    longitude: float
-    location_name: str
-    language: str = "en"
-    mode: str = "detailed"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    location_name: Optional[str] = "your area"
+    language: Optional[str] = "en"
+    mode: Optional[str] = "detailed"

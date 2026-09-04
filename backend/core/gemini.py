@@ -23,30 +23,33 @@ async def get_fast_response(
     lon: Optional[float] = None, 
     location_name: Optional[str] = "your area"
 ) -> str:
+    
     # Fallback to direct AI response if coordinates are unavailable
     if lat is None or lon is None:
         response = await client.aio.models.generate_content(
-            model="gemini-3.5-flash",
+            model="gemini-3.5-flash-lite",
             contents=query
         )
         return response.text
 
     telemetry_data = await fetch_telemetry(lat, lon)
     
-    system_prompt = f"""
+    # Combine the system instruction and user query into one robust payload
+    combined_prompt = f"""
     You are WeatherGPT. The user is in {location_name}.
     Answer the user's query concisely based strictly on this live telemetry data:
     {telemetry_data}
+    
+    User Query: {query}
     """
     
+    # Send as standard contents to bypass system_instruction restrictions
     response = await client.aio.models.generate_content(
-        model="gemini-3.5-flash",
-        contents=query,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            temperature=0.3
-        )
+        model="gemini-3.5-flash-lite",
+        contents=combined_prompt,
+        config=types.GenerateContentConfig(temperature=0.3)
     )
+    
     return response.text
 
 async def get_detailed_response(query: str, lat: float, lon: float, location_name: str) -> str:

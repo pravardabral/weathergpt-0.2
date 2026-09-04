@@ -7,10 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime, timezone
 import asyncio
+import traceback
 from typing import List, Dict
 
 # Core imports
-from core.schemas import ChatRequest
+from core.schemas import ChatPayload
 from core.gemini import get_fast_response, get_detailed_response
 from core.weather import get_aggregated_weather
 from core.alerts import get_all_active_alerts, active_webhooks
@@ -166,40 +167,22 @@ async def get_current_weather(
 # 3. Chat Endpoint + MongoDB Persistence
 # ==========================================
 @app.post("/api/chat")
-async def chat_endpoint(
-    request: Request,
-    response: Response,
-    chat_req: ChatRequest,
-    mongo_db = Depends(get_mongo_db)
-):
-    user_uuid = get_or_create_user_uuid(request, response)
-
+async def chat_endpoint(payload: ChatPayload):
     try:
-        if chat_req.mode == "fast":
-            response_text = await get_fast_response(
-                query=chat_req.query,
-                lat=chat_req.latitude,
-                lon=chat_req.longitude,
-                location_name=chat_req.location_name
+        if payload.mode == "fast":
+            ai_response = await get_fast_response(
+                query=payload.query,
+                lat=payload.latitude,
+                lon=payload.longitude,
+                location_name=payload.location_name
             )
         else:
-            response_text = await get_detailed_response(request.query)
+            ai_response = await get_detailed_response(payload.query)
+        return {"response": ai_response}
 
-        # --- MongoDB Persistence ---
-        if mongo_db is not None:
-            await mongo_db["chat_history"].insert_one({
-                "user_id": user_uuid,
-                "query": chat_req.query,
-                "response": response_text,
-                "mode": chat_req.mode,
-                "location_name": chat_req.location_name,
-                "created_at": datetime.now(timezone.utc)
-            })
-
-        return {"response": response_text}
     except Exception as e:
-        print(f"Chat Error: {e}")
-        return {"response": "I encountered an error processing your request. Please check backend logs."}
+        traceback.print_exc() # Prints the exact red error trace to Docker logs
+        raise HTTPException(status_code=500, detail="Failed to generate AI response.")
 
 
 # ==========================================
