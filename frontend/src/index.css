@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Custom utility for the frosted glass effect in Tailwind v4 */
+@utility glass-card {
+  @apply bg-white/20 backdrop-blur-lg border border-white/30 shadow-lg rounded-3xl p-4 text-white;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 5px; /* Extremely thin */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Invisible track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
+  border-radius: 10px; /* Rounded pill shape */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3); /* Slightly brighter when hovered */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}

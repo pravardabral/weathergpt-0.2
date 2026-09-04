@@ -1,0 +1,53 @@
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: weathergpt_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: weathergpt
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: weathergpt_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # 3. FastAPI Backend
+  backend:
+    build: 
+      context: ./backend
+    container_name: weathergpt_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+      - mongodb
+
+  # 4. React Frontend (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+    container_name: weathergpt_frontend
+    restart: always
+    ports:
+      - "80:80" # Maps standard web port 80 to the container
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  mongo_data:
