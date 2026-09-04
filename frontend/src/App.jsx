@@ -93,18 +93,31 @@ const WindCompass = () => (
 
 // --- MICRO-CARD COMPONENT ---
 const WeatherMicroCard = ({ data, theme }) => (
-  <div className={`mt-2 p-4 rounded-2xl flex items-center justify-between ${theme.cardBg} ${theme.border} shadow-sm`}>
-    <div className="flex items-center gap-4">
-      <div className={`p-3 rounded-full ${theme.iconBg}`}><CloudLightning size={24} className={theme.iconText} /></div>
-      <div>
-        <h4 className="text-xl font-bold tracking-tight">{data.temp}°C</h4>
-        <p className={`text-xs font-medium uppercase tracking-wider ${theme.mutedText}`}>{data.location}</p>
+  <div className="flex flex-col w-full mt-1">
+    
+    {/* Top: AI Insight Response */}
+    {data.insight && (
+      <div className="pb-3.5">
+        <p className="text-[16px] sm:text-[17px] font-medium leading-relaxed">
+          {data.insight}
+        </p>
+      </div>
+    )}
+
+    {/* Bottom: Subdued Telemetry Context */}
+    <div className="pt-3 border-t border-current opacity-60 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <div className="flex items-center gap-2">
+        <CloudLightning size={14} className={theme.iconText} />
+        <span className="text-xs font-bold text-current">{data.temp}°C</span>
+        <span className="text-[9px] font-bold uppercase tracking-widest ml-0.5">
+          {data.location}
+        </span>
+      </div>
+      <div className="text-[9px] font-bold uppercase tracking-widest text-right">
+        {data.condition} • UV {data.uv}
       </div>
     </div>
-    <div className="text-right">
-      <div className="text-sm font-semibold">{data.condition}</div>
-      <div className={`text-xs ${theme.mutedText}`}>UV: {data.uv} | AQI: {data.aqi}</div>
-    </div>
+    
   </div>
 );
 
@@ -156,15 +169,22 @@ export default function App() {
   };
 
   const theme = {
-    appBg: isHighContrast ? 'bg-white' : 'bg-gradient-to-br from-slate-900 via-[#0a0f1d] to-zinc-900', // Minimalist Background
+    appBg: isHighContrast ? 'bg-white' : 'bg-gradient-to-br from-slate-900 via-[#0a0f1d] to-zinc-900',
     text: isHighContrast ? 'text-black' : 'text-white',
     mutedText: isHighContrast ? 'text-gray-600' : 'text-white/60',
     border: isHighContrast ? 'border-2 border-black' : 'border border-white/10',
     panelBg: isHighContrast ? 'bg-white border-l-2 border-black' : 'bg-[#0a0f1d]/95 backdrop-blur-3xl border-white/10',
-    bubbleUser: isHighContrast ? 'bg-black text-white rounded-br-sm' : 'bg-blue-600 text-white rounded-br-sm',
-    bubbleAI: isHighContrast ? 'bg-gray-50 border-2 border-black text-black rounded-bl-sm' : 'bg-[#0b1329]/80 backdrop-blur-2xl border border-white/10 text-white/95 rounded-bl-sm',
-    cardBg: isHighContrast ? 'bg-white' : 'bg-white/5',
-    iconBg: isHighContrast ? 'bg-black' : 'bg-blue-500/20',
+    
+    // UPDATED CHAT BUBBLES
+    bubbleUser: isHighContrast ? 'bg-black text-white rounded-[1.5rem] rounded-tr-sm' : 'bg-gradient-to-tr from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20 rounded-[1.5rem] rounded-tr-sm',
+    bubbleAI: isHighContrast ? 'bg-white border-2 border-black text-black rounded-[1.5rem] rounded-tl-sm shadow-sm' : 'bg-[#121c36]/90 backdrop-blur-2xl border border-white/10 text-white/95 shadow-xl rounded-[1.5rem] rounded-tl-sm',
+    
+    // NEW MICRO-CARD STYLES
+    microCard: isHighContrast ? 'bg-white border-2 border-black' : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-xl',
+    insightBg: isHighContrast ? 'bg-gray-100 border-t-2 border-black text-black' : 'bg-blue-500/15 border-t border-white/10 text-blue-50',
+    iconBox: isHighContrast ? 'bg-black text-white' : 'bg-blue-500/20 text-blue-300 shadow-inner',
+    pill: isHighContrast ? 'bg-gray-200 text-black' : 'bg-white/10 text-white/90',
+    
     iconText: isHighContrast ? 'text-white' : 'text-blue-400',
     skeleton: isHighContrast ? 'bg-gray-300' : 'bg-white/10',
     inputDock: isHighContrast ? 'bg-white border-t-2 border-black' : 'bg-gradient-to-t from-black/95 via-black/60 to-transparent',
@@ -389,7 +409,7 @@ export default function App() {
                 <AnimatePresence>
                   {currentChat.map((msg, idx) => (
                     <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[88%] p-5 shadow-xl relative group ${msg.role === 'user' ? theme.bubbleUser : theme.bubbleAI}`}>
+                      <div className={`max-w-[85%] px-5 py-4 relative group ${msg.role === 'user' ? theme.bubbleUser : theme.bubbleAI}`}>
                         {msg.role === 'ai' ? (
                           <>
                             <div className="text-[15px] prose dark:prose-invert max-w-none">{renderMessageContent(msg.content)}</div>

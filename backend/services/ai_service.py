@@ -35,21 +35,25 @@ async def get_fast_response(
     telemetry_data = await fetch_telemetry(lat, lon)
     
     # Combine the system instruction and user query into one robust payload
+    # Combine the system instruction and user query into one robust payload
+    # Combine the system instruction and user query into one robust payload
     combined_prompt = f"""
     You are WeatherGPT. The user is in {location_name}.
     Answer the user's query concisely based strictly on this live telemetry data:
     {telemetry_data}
     
     User Query: {query}
-    If the user asks a simple question about current conditions (e.g., "What is the weather?", "Is it raining?"), respond EXCLUSIVELY with this JSON format wrapped in a ```json block:
-    {
-    "type": "weather_card",
-    "location": "City Name",
-    "temp": 28,
-    "condition": "Brief description",
-    "uv": 6,
-    "aqi": 45
-    }
+
+    If the user asks a simple question about current conditions or travel safety, respond EXCLUSIVELY with this JSON format wrapped in a ```json block:
+    {{
+      "type": "weather_card",
+      "location": "City Name",
+      "temp": 28,
+      "condition": "Brief description",
+      "uv": 6,
+      "aqi": 45,
+      "insight": "A direct, 1-2 sentence answer to the user's specific question."
+    }}
     Do not add conversational text outside the JSON block.
     """
     
