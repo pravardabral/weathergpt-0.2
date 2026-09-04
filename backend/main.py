@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -7,19 +8,29 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from core.database import postgres_engine, Base, mongodb
 from core.config import MONGODB_URL, MONGODB_NAME
 from core.logger import logger
-
-# Import the new modular routers
 from api.routes import chat, weather, user, health
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Initializing Database Connections...")
-    async with postgres_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        
+    
+    retries = 5
+    for i in range(retries):
+        try:
+            async with postgres_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("PostgreSQL connected successfully.")
+            break
+        except Exception as e:
+            if i == retries - 1:
+                logger.error("Failed to connect to PostgreSQL after multiple retries.")
+                raise e
+            logger.warning(f"Database not ready yet, retrying in 3 seconds... ({i+1}/{retries})")
+            await asyncio.sleep(3)
+            
     mongodb.client = AsyncIOMotorClient(MONGODB_URL)
     mongodb.db = mongodb.client[MONGODB_NAME]
-    logger.info("PostgreSQL + MongoDB Initialized.")
+    logger.info("MongoDB Initialized.")
     
     yield
     
